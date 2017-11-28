@@ -1,6 +1,8 @@
 var restify = require('restify');
 var builder = require('botbuilder');
 
+var http = require('http'); //the variable doesn't necessarily have to be named http
+http.createServer(function(req, res) {});
 // Setup Restify Server
 var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
@@ -32,6 +34,7 @@ bot.dialog('/', function (session, args) {
     } else {
         session.userData = null;
     }
+
     session.endDialog();
 });
 function getName(session) {
@@ -55,27 +58,8 @@ function getPassword(session) {
     if (re.test(password)) {
         session.userData.password = password;
         var data = session.userData;
-        sendData(data, function (msg) {
-            session.send(msg);
-            session.userData = null;
-        });
+        session.send("Thank you, " + data.name + ". You are now signed up!");
     } else {
         session.send("Password must contain at least 8 characters, including at least 1 number, 1 uppercase letter, 1 lower case letter and 1 special character. For example: Mybot@123");
     }
-}
-
-function sendData(data, cb) {
-    http.get("http://local.dev/github/troublehacker/Emulator/data.php?name=" + data.name + "&email=" + data.email + "&password=" + data.password, function (res) {
-        var msg = '';
-        res.on("data", function (chunk) {
-            msg += chunk;
-        });
-
-        res.on('end', function () {
-            cb(msg);
-        });
-
-    }).on('error', function (e) {
-        console.log("Got error: " + e.message);
-    });
-}
+};
